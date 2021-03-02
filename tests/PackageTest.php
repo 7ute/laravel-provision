@@ -2,11 +2,7 @@
 
 namespace SevenUte\LaravelProvision\Tests;
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Config;
 use Spatie\TestTime\TestTime;
-use Carbon\Carbon;
 use File;
 
 class PackageTest extends TestCase
@@ -26,64 +22,79 @@ class PackageTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
-    public function the_status_list_should_be_empty()
+    /**
+     * @testdox [provision:status  ] The status list should be empty
+     */
+    public function testStatusListShouldBeEmpty()
     {
-        $this->artisan('provision:status')
-            ->expectsTable(['Provision', 'Class'], [])
-            ->assertExitCode(0);
+        $result = $this->legacyArtisan('provision:status');
+        $this->assertEquals(0, $result['code']);
+        $this->assertStringContainsString('Provision | Class', $result['output']);
     }
 
-    /** @test */
-    public function creating_a_provision_should_work()
+    /**
+     * @testdox [provision:make    ] The provision file creation should work
+     */
+    public function testProvisionFileCreationShouldWork()
     {
         TestTime::freeze('Y-m-d H:i:s', '2000-01-01 00:00:00');
-        $this->artisan("provision:make", ['name' => 'FirstMigration'])
-            ->run();
+        $result = $this->legacyArtisan('provision:make', ['name' => 'FirstMigration']);
+        $this->assertEquals(0, $result['code']);
+        $this->assertStringContainsString('has been created', $result['output']);
 
         $path = database_path('provisions' . DIRECTORY_SEPARATOR . '2000_01_01_000000_first_migration.php');
         $this->assertFileExists($path);
     }
 
-    /** @test */
-    public function running_a_provision_should_trigger_a_confirmation()
+    /**
+     * @testdox [provision         ] Running a provision should work trigger a confirmation
+     */
+    public function testProvisioningShouldWarnOnProduction()
     {
-        TestTime::freeze('Y-m-d H:i:s', '2000-01-02 00:00:00');
-        $this->artisan("provision:make", ['name' => 'SecondMigration'])->run();
 
-        $this->artisan("provision", ['--confirm' => true])
-            ->expectsConfirmation('Do you really wish to run this command?', 'no');
+        TestTime::freeze('Y-m-d H:i:s', '2000-01-02 00:00:00');
+        $result = $this->legacyArtisan('provision:make', ['name' => 'SecondMigration']);
+        $this->assertEquals(0, $result['code']);
+
+        $result = $this->legacyArtisan('provision', ['--confirm' => true, '--no-interaction' => true]);
+        $this->assertStringContainsString('Application In Production!', $result['output']);
+        $this->assertStringContainsString('Command Canceled!', $result['output']);
+
         $this->assertDatabaseMissing('provisions', [
             'provision' => '2000_01_02_000000_second_migration',
         ]);
     }
 
-    /** @test */
-    public function the_status_list_should_not_be_empty()
+    /**
+     * @testdox [provision         ] Status list should not be empty after a couple provisions
+     */
+    public function testProvisioningShouldPopulateStatusList()
     {
 
         TestTime::freeze('Y-m-d H:i:s', '2000-01-04 00:00:00');
-        $this->artisan("provision:make", ['name' => 'FourthMigration'])->run();
+        $this->legacyArtisan('provision:make', ['name' => 'FourthMigration']);
 
         TestTime::freeze('Y-m-d H:i:s', '2000-01-03 00:00:00');
-        $this->artisan("provision:make", ['name' => 'ThirdMigration'])->run();
+        $this->legacyArtisan('provision:make', ['name' => 'ThirdMigration']);
 
-        $this->artisan("provision", ['--force' => true])
-            ->assertExitCode(0);
-            
-        $this->artisan('provision:status')
-            ->expectsTable(
-                ['Provision', 'Class'],
-                [
-                    ['2000_01_03_000000_third_migration', 'ThirdMigration'],
-                    ['2000_01_04_000000_fourth_migration', 'FourthMigration'],
-                ]
-            )
-            ->assertExitCode(0);
+        $result = $this->legacyArtisan('provision', ['--force' => true]);
+        $this->assertEquals(0, $result['code']);
+        $this->assertStringContainsString('FourthMigration', $result['output']);
+        $this->assertStringContainsString('ThirdMigration', $result['output']);
+        $this->assertStringContainsString('All provisions (2) run successfully.', $result['output']);
+
+        $result = $this->legacyArtisan('provision:status');
+        $this->assertEquals(0, $result['code']);
+        $this->assertStringContainsString('2000_01_03_000000_third_migration', $result['output']);
+        $this->assertStringContainsString('2000_01_04_000000_fourth_migration', $result['output']);
+        $this->assertStringContainsString('ThirdMigration', $result['output']);
+        $this->assertStringContainsString('FourthMigration', $result['output']);
     }
 
-    /** @test */
-    public function running_a_provision_should_work()
+    /**
+     * @testdox [provision         ] Provisioning twice should not run twice
+     */
+    public function testProvisioningTwiceShouldWork()
     {
         $this->loadLaravelMigrations();
 
@@ -93,33 +104,37 @@ class PackageTest extends TestCase
             database_path('provisions') . DIRECTORY_SEPARATOR . '2000_01_05_000000_fifth_migration.php'
         );
 
-        $this->assertDatabaseCount('users', 0);
+        $this->legacyAssertDatabaseCount('users', 0);
         $this->assertDatabaseMissing('users', ['email' => 'test@example.org']);
 
-        $this->artisan("provision", ['--force' => true])
-            ->assertExitCode(0);
+        $result = $this->legacyArtisan('provision', ['--force' => true]);
+        $this->assertEquals(0, $result['code']);
 
-        $this->assertDatabaseCount('users', 1);
+        $this->legacyAssertDatabaseCount('users', 1);
         $this->assertDatabaseHas('users', ['email' => 'test@example.org']);
 
         // Running it twice should not run this one
-        $this->artisan("provision", ['--force' => true])
-            ->expectsOutput('All provisions have already run.');
+        $result = $this->legacyArtisan('provision', ['--force' => true]);
+        $this->assertEquals(0, $result['code']);
 
-        $this->assertDatabaseCount('users', 1);
+        $this->legacyAssertDatabaseCount('users', 1);
     }
 
-    /** @test */
-    public function removing_a_provision_should_work()
+    /**
+     * @testdox [provision:rollback] Rolling back should remove the provision from DB
+     */
+    public function testRollingBackShouldWork()
     {
         TestTime::freeze('Y-m-d H:i:s', '2000-01-06 00:00:00');
-        $this->artisan("provision:make", ['name' => 'SixthMigration'])->run();
-        $this->artisan("provision", ['--force' => true])->run();
+        $this->legacyArtisan('provision:make', ['name' => 'SixthMigration']);
+        $result = $this->legacyArtisan('provision', ['--force' => true]);
+        $this->assertEquals(0, $result['code']);
         $this->assertDatabaseHas('provisions', [
             'provision' => '2000_01_06_000000_sixth_migration',
         ]);
 
-        $this->artisan("provision:rollback", ['name' => 'SixthMigration'])->run();
+        $result = $this->legacyArtisan('provision:rollback', ['name' => 'SixthMigration']);
+        $this->assertEquals(0, $result['code']);
         $this->assertDatabaseMissing('provisions', [
             'provision' => '2000_01_06_000000_sixth_migration',
         ]);
