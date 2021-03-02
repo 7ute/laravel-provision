@@ -1,0 +1,56 @@
+{
+    "name": "7ute/laravel-provision",
+    "description": "Migrate provisionning data separately",
+    "keywords": [
+        "7ute",
+        "laravel-provision"
+    ],
+    "homepage": "https://github.com/7ute/laravel-provision",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Julien Cauvin",
+            "email": "contact@7ute.fr",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4",
+        "spatie/test-time": "^1.2"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "SevenUte\\LaravelProvision\\": "src",
+            "SevenUte\\LaravelProvision\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SevenUte\\LaravelProvision\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "psalm": "vendor/bin/psalm",
+        "test": "vendor/bin/phpunit --colors=always",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SevenUte\\LaravelProvision\\ProvisionServiceProvider"
+            ],
+            "aliases": {
+                "Provision": "SevenUte\\LaravelProvision\\ProvisionFacade"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

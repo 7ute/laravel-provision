@@ -1,0 +1,18 @@
+<?php
+
+use SevenUte\LaravelProvision\Provision;
+
+class {ProvisionClass} extends Provision
+{
+    /**
+     * The provision to run
+     */
+    public function run()
+    {
+        // Exemple:
+        //
+        // MyModel::firstOrCreate(['name' => 'something']);
+        // MyOtherModel::updateOrCreate(['name' => 'something'], ['active' => 1]);
+        //
+    }
+}
