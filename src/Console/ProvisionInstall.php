@@ -12,7 +12,7 @@ class ProvisionInstall extends Command
 {
     protected $signature = 'provision:install';
 
-    protected $description = 'Installs the provisionning system';
+    protected $description = 'Installs the provisioning system';
 
     public function handle()
     {

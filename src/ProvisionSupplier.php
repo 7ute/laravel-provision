@@ -49,7 +49,7 @@ class ProvisionSupplier
     }
 
     /**
-     * Gets the current provisionning folder
+     * Gets the current provisioning folder
      */
     public function getAlreadyRanProvisions()
     {
@@ -73,7 +73,7 @@ class ProvisionSupplier
     }
 
     /**
-     * Gets the current provisionning folder
+     * Gets the current provisioning folder
      * @param boolean $full Get the full absolute path
      */
     public function getProvisionsFolder($full = false)

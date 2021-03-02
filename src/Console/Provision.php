@@ -44,7 +44,7 @@ class Provision extends Command
                 throw new Exception("The '{$classname}' class already exists.");
             }
             if ($silent === false) {
-                $this->line("<comment>Provisionning:</comment> {$classname} (<comment>$name</comment>)");
+                $this->line("<comment>Provisioning:</comment> {$classname} (<comment>$name</comment>)");
             }
             $startTime = microtime(true);
 

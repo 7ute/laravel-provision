@@ -6,7 +6,7 @@ return [
         // The connection name (should exist in config/database)
         'connection' => 'default',
 
-        // The provisionning table
+        // The provisioning table
         'table' => 'provisions',
     ],
 

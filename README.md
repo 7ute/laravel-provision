@@ -1,4 +1,4 @@
-# Migrate provisionning data separately
+# Migrate provisioning data separately
 
 A set of commands to provision data separately from your migrations or test seeds.
 
