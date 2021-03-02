@@ -1,0 +1,19 @@
+<?php
+
+use SevenUte\LaravelProvision\Provision;
+
+class FifthMigration extends Provision
+{
+    /**
+     * The provision to run
+     */
+    public function run()
+    {
+        DB::table('users')
+            ->insert([
+                'name' => 'test-user',
+                'email' => 'test@example.org',
+                'password' => 'none',
+            ]);
+    }
+}

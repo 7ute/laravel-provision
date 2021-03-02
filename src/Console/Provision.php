@@ -4,12 +4,14 @@ namespace SevenUte\LaravelProvision\Console;
 
 use Illuminate\Console\Command;
 use SevenUte\LaravelProvision\ProvisionFacade;
+use Exception;
 
 class Provision extends Command
 {
     protected $signature = 'provision
         {--force : Force the operation to run when in production}
-        {--silent : Hide the command output}';
+        {--silent : Hide the command output}
+        {--confirm : Shows a confirmation }';
 
     protected $description = 'Creates a provision with the classname {name}';
 
@@ -39,7 +41,7 @@ class Provision extends Command
             ];
 
             if (class_exists($classname)) {
-                throw new InvalidArgumentException("A {$className} class already exists.");
+                throw new Exception("The '{$classname}' class already exists.");
             }
             if ($silent === false) {
                 $this->line("<comment>Provisionning:</comment> {$classname} (<comment>$name</comment>)");
@@ -72,7 +74,7 @@ class Provision extends Command
 
     protected function confirmToProceed()
     {
-        if ($this->getLaravel()->environment() === 'production') {
+        if ($this->getLaravel()->environment() !== 'production' && !$this->option('confirm', false)) {
             return true;
         }
 

@@ -6,15 +6,13 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 use SevenUte\LaravelProvision\ProvisionServiceProvider;
 
+use File;
+
 class TestCase extends Orchestra
 {
     public function setUp(): void
     {
         parent::setUp();
-
-        // Factory::guessFactoryNamesUsing(
-        //     fn (string $modelName) => 'SevenUte\\LaravelProvision\\Database\\Factories\\'.class_basename($modelName).'Factory'
-        // );
     }
 
     protected function getPackageProviders($app)
@@ -32,8 +30,14 @@ class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
+        $app['path.base'] = __DIR__;
 
         include_once __DIR__.'/../database/migrations/create_laravel_provisions_table.php.stub';
         (new \CreateLaravelProvisionsTable())->up();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
     }
 }
