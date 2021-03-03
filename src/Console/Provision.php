@@ -27,10 +27,10 @@ class Provision extends Command
         }
 
         $files = ProvisionFacade::getProvisionFiles();
-        $provisionned = ProvisionFacade::getAlreadyRanProvisions()->pluck('id', 'provision');
+        $provisioned = ProvisionFacade::getAlreadyRanProvisions()->pluck('id', 'provision');
         $classesToRun = [];
         foreach ($files as $name => $path) {
-            if ($provisionned->has($name)) {
+            if ($provisioned->has($name)) {
                 continue;
             }
             $classname = ProvisionFacade::getClassFromName($name);
@@ -44,7 +44,7 @@ class Provision extends Command
                 throw new Exception("The '{$classname}' class already exists.");
             }
             if ($silent === false) {
-                $this->line("<comment>Provisioning:</comment> {$classname} (<comment>$name</comment>)");
+                $this->line("<fg=blue>[i] Provisioning</> {$classname} (<comment>$name</comment>)");
             }
             $startTime = microtime(true);
 
@@ -60,15 +60,15 @@ class Provision extends Command
 
             $runTime = round(microtime(true) - $startTime, 2);
             if ($silent === false) {
-                $this->line("<info>Provisionned:</info>  {$classname} ({$runTime} seconds)");
+                $this->line("<fg=green>[✓] Provisioned</> {$classname} ({$runTime} seconds)");
             }
         }
 
         $number_run = count($classesToRun);
         if ($number_run > 0) {
-            $this->info("All provisions (<comment>{$number_run}</comment>) run successfully.");
+            $this->line("<fg=green>[✓]</> All provisions (<comment>{$number_run}</comment>) run <fg=green>successfully</>.");
         } else {
-            $this->warn('All provisions have already run.');
+            $this->line('<fg=yellow>[!]</> All provisions have <fg=yellow>already run</>.');
         }
     }
 

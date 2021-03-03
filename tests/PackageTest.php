@@ -47,7 +47,7 @@ class PackageTest extends TestCase
     }
 
     /**
-     * @testdox [provision         ] Running a provision should work trigger a confirmation
+     * @testdox [provision -confirm] Running a provision should work trigger a confirmation
      */
     public function testProvisioningShouldWarnOnProduction()
     {
@@ -66,7 +66,7 @@ class PackageTest extends TestCase
     }
 
     /**
-     * @testdox [provision         ] Status list should not be empty after a couple provisions
+     * @testdox [provision:status  ] Status list should not be empty after a couple provisions
      */
     public function testProvisioningShouldPopulateStatusList()
     {
@@ -92,7 +92,7 @@ class PackageTest extends TestCase
     }
 
     /**
-     * @testdox [provision         ] Provisioning twice should not run twice
+     * @testdox [provision         ] Provisioning twice should not be executed twice
      */
     public function testProvisioningTwiceShouldWork()
     {

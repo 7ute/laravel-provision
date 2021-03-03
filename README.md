@@ -39,7 +39,7 @@ php artisan migrate
 ## Provision files
 
 The provision files are run in their chronological order.
-Only the files that have not been yet provisionned are run.
+Only the files that have not been yet provisioned are run.
 You can access the current app through `$this->container` and current console through `$this->command`.
 
 ## Q&A

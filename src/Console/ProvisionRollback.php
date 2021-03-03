@@ -23,10 +23,10 @@ class ProvisionRollback extends Command
             })
             ->pluck('name', 'class');
 
-        $provisionned = ProvisionFacade::getAlreadyRanProvisions()
+        $provisioned = ProvisionFacade::getAlreadyRanProvisions()
             ->pluck('id', 'provision');
 
-        $id = $provisionned->get($provision);
+        $id = $provisioned->get($provision);
         if (!$id) {
             return $this->warn("The provision '$provision' does not exist in the database.");
         }
