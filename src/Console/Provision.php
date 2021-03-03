@@ -3,6 +3,7 @@
 namespace SevenUte\LaravelProvision\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use SevenUte\LaravelProvision\ProvisionFacade;
 use Exception;
 
@@ -11,7 +12,8 @@ class Provision extends Command
     protected $signature = 'provision
         {--force : Force the operation to run when in production}
         {--silent : Hide the command output}
-        {--confirm : Shows a confirmation }';
+        {--confirm : Shows a confirmation }
+        {--dry-run : Discards database modifications <fg=red>[!] ATTENTION:</> It does not prevent writing on disk! }';
 
     protected $description = 'Creates a provision with the classname {name}';
 
@@ -24,6 +26,12 @@ class Provision extends Command
         $silent = $this->option('silent', false);
         if ($silent !== false) {
             $this->setVerbosity('quiet');
+        }
+
+        $dry_run = $this->option('dry-run', false);
+        if ($dry_run) {
+            $this->line('<fg=yellow>[!] Dry-run</> The database modifications wont be committed');
+            DB::beginTransaction();
         }
 
         $files = ProvisionFacade::getProvisionFiles();
@@ -69,6 +77,10 @@ class Provision extends Command
             $this->line("<fg=green>[✓]</> All provisions (<comment>{$number_run}</comment>) run <fg=green>successfully</>.");
         } else {
             $this->line('<fg=yellow>[!]</> All provisions have <fg=yellow>already run</>.');
+        }
+        if ($dry_run) {
+            $this->line('<fg=yellow>[!] Dry-run</>: The transaction has been <fg=green>rolled back</>');
+            DB::rollBack();
         }
     }
 

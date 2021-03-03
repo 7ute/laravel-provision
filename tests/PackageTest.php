@@ -139,4 +139,26 @@ class PackageTest extends TestCase
             'provision' => '2000_01_06_000000_sixth_migration',
         ]);
     }
+
+    /**
+     * @testdox [provision -dry-run] Dry-run should not commit anything to the database
+     */
+    public function testProvisionDryRunShouldWork()
+    {
+        $this->loadLaravelMigrations();
+
+        TestTime::freeze('Y-m-d H:i:s', '2000-01-07 00:00:00');
+        $this->legacyArtisan('provision:make', ['name' => 'SeventhMigration']);
+
+        $this->legacyAssertDatabaseCount('users', 0);
+        $this->assertDatabaseMissing('users', ['email' => 'test@example.org']);
+
+        $result = $this->legacyArtisan('provision', ['--force' => true, '--dry-run' => true]);
+        $this->assertStringContainsString('Dry-run', $result['output']);
+        $this->assertStringContainsString('rolled back', $result['output']);
+        $this->assertEquals(0, $result['code']);
+
+        $this->legacyAssertDatabaseCount('users', 0);
+        $this->legacyAssertDatabaseCount('users', 0);
+    }
 }
